@@ -64,20 +64,27 @@ class HomeVM {
     }
     
     func validateSearchText(_ text: String) -> String {
+        // Remove accents from characters
         let withoutAccents = text.folding(options: .diacriticInsensitive, locale: .current)
         
-        let emojiPattern = "[\\p{Emoji}\\p{Emoji_Presentation}\\p{Emoji_Modifier}\\p{Emoji_Modifier_Base}\\p{Emoji_Component}\\p{Extended_Pictographic}]"
+        // Regex pattern to match all emojis
+        let emojiPattern = "[\\p{So}\\p{Cn}]"
         
         do {
+            // Remove emojis
             let emojiRegex = try NSRegularExpression(pattern: emojiPattern, options: [])
             let range = NSRange(location: 0, length: withoutAccents.utf16.count)
             let withoutEmojis = emojiRegex.stringByReplacingMatches(in: withoutAccents, options: [], range: range, withTemplate: "")
-            
+
+            // Define allowed characters, including numbers
             let allowedCharacters = "a-zA-Z0-9!@#$%^&*():.,<>/\\[\\]? "
             let specialCharPattern = "[^\(allowedCharacters)]"
+            
+            // Remove disallowed special characters, but allow numbers
             let specialCharRegex = try NSRegularExpression(pattern: specialCharPattern, options: [])
             let finalValidatedText = specialCharRegex.stringByReplacingMatches(in: withoutEmojis, options: [], range: NSRange(location: 0, length: withoutEmojis.utf16.count), withTemplate: "")
             
+            // Return the validated text
             return finalValidatedText
         } catch {
             print("Error in regex: \(error)")
